@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body{margin:0;font-family:'Segoe UI';background:#eef2f7}
+    .header{
+      background:#4facfe;color:#fff;padding:15px;
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .header button{
+      background:#fff;color:#4facfe;border:none;padding:6px 12px;
+      border-radius:6px;cursor:pointer;
+    }
+    .container{
+      max-width:650px;margin:30px auto;background:#fff;padding:20px;
+      border-radius:14px;box-shadow:0 10px 20px rgba(0,0,0,.1);
+      animation:fade .5s ease;
+    }
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+
+    .input-box{display:flex;gap:10px;margin-bottom:15px}
+    input{
+      flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;
+    }
+    button.add{
+      background:#4facfe;color:#fff;border:none;padding:10px 14px;
+      border-radius:8px;cursor:pointer;
+    }
+
+    ul{list-style:none;padding:0}
+    li{
+      background:#f5f7fb;margin:10px 0;padding:12px;border-radius:10px;
+      display:flex;justify-content:space-between;align-items:center;
+      transition:.2s;
+    }
+    li:hover{transform:scale(1.02)}
+
+    .done{text-decoration:line-through;color:gray}
+
+    .actions button{
+      margin-left:6px;border:none;padding:5px 8px;border-radius:6px;
+      cursor:pointer;
+    }
+    .doneBtn{background:green;color:#fff}
+    .delBtn{background:red;color:#fff}
+
+    .stats{
+      display:flex;justify-content:space-around;margin-bottom:15px;
+      font-size:14px;
+    }
+    .card{
+      background:#4facfe;color:#fff;padding:10px;border-radius:10px;
+      width:30%;text-align:center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span>🚀 Task Manager</span>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="card" id="total">Total: 0</div>
+    <div class="card" id="done">Done: 0</div>
+    <div class="card" id="todo">Todo: 0</div>
+  </div>
+
+  <div class="input-box">
+    <input id="task" placeholder="Enter task">
+    <button class="add" onclick="addTask()">Add</button>
+  </div>
+
+  <ul id="list"></ul>
+
+</div>
+
+<script>
+const token=localStorage.getItem("token");
+
+function logout(){
+  localStorage.removeItem("token");
+  window.location.href="index.html";
+}
+
+async function addTask(){
+  const title=document.getElementById("task").value;
+
+  await fetch("http://localhost:5000/api/tasks",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":token
+    },
+    body:JSON.stringify({title})
+  });
+
+  document.getElementById("task").value="";
+  loadTasks();
+}
+
+async function loadTasks(){
+  const res=await fetch("http://localhost:5000/api/tasks",{
+    headers:{Authorization:token}
+  });
+
+  const data=await res.json();
+
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  let done=0;
+
+  data.forEach(task=>{
+    if(task.status==="done") done++;
+
+    const li=document.createElement("li");
+
+    li.innerHTML=`
+      <span class="${task.status==='done'?'done':''}">
+        ${task.title}
+      </span>
+      <div class="actions">
+        <button class="doneBtn" onclick="markDone('${task._id}')">✔</button>
+        <button class="delBtn" onclick="deleteTask('${task._id}')">✖</button>
+      </div>
+    `;
+
+    list.appendChild(li);
+  });
+
+  document.getElementById("total").innerText="Total: "+data.length;
+  document.getElementById("done").innerText="Done: "+done;
+  document.getElementById("todo").innerText="Todo: "+(data.length-done);
+}
+
+async function markDone(id){
+  await fetch(`http://localhost:5000/api/tasks/${id}`,{
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":token
+    },
+    body:JSON.stringify({status:"done"})
+  });
+  loadTasks();
+}
+
+async function deleteTask(id){
+  await fetch(`http://localhost:5000/api/tasks/${id}`,{
+    method:"DELETE",
+    headers:{Authorization:token}
+  });
+  loadTasks();
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
