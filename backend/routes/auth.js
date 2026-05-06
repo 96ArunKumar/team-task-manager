@@ -3,11 +3,16 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+
+// ================= SIGNUP =================
+
 router.post("/signup", async (req, res) => {
+
   try {
 
     const { name, email, password, role } = req.body;
 
+    // check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -16,8 +21,10 @@ router.post("/signup", async (req, res) => {
       });
     }
 
+    // hash password
     const hash = await bcrypt.hash(password, 10);
 
+    // create user
     const user = await User.create({
       name,
       email,
@@ -39,6 +46,9 @@ router.post("/signup", async (req, res) => {
     });
   }
 });
+
+
+// ================= LOGIN =================
 
 router.post("/login", async (req, res) => {
 
