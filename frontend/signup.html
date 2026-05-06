@@ -2,7 +2,11 @@
 <html>
 <head>
   <title>Register</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <style>
+
     *{
       box-sizing:border-box;
       font-family:'Segoe UI';
@@ -52,61 +56,99 @@
     #msg{
       margin-top:10px;
       color:green;
+      font-weight:bold;
     }
 
     a{
       text-decoration:none;
+      color:#667eea;
+      font-weight:bold;
     }
+
   </style>
+
 </head>
+
 <body>
 
 <div class="card">
+
   <h2>Create Account</h2>
 
   <input id="name" placeholder="Name">
+
   <input id="email" placeholder="Email">
+
   <input id="password" type="password" placeholder="Password">
 
-  <button onclick="signup()">Register</button>
+  <button type="button" onclick="signup()">
+    Register
+  </button>
 
   <p id="msg"></p>
 
-  <p>Already have an account?
+  <p>
+    Already have an account?
     <a href="index.html">Login</a>
   </p>
+
 </div>
 
 <script>
+
 async function signup(){
 
-  const name=document.getElementById("name").value;
-  const email=document.getElementById("email").value;
-  const password=document.getElementById("password").value;
+  try{
 
-  const res=await fetch("/api/auth/signup",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      name,
-      email,
-      password,
-      role:"admin"
-    })
-  });
+    const name=document.getElementById("name").value;
+    const email=document.getElementById("email").value;
+    const password=document.getElementById("password").value;
 
-  const data=await res.json();
+    const res = await fetch("/api/auth/signup",{
 
-  if(data){
-    document.getElementById("msg").innerText="Account Created Successfully";
+      method:"POST",
 
-    setTimeout(()=>{
-      window.location.href="index.html";
-    },1500);
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        name,
+        email,
+        password,
+        role:"admin"
+      })
+
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    if(res.ok){
+
+      document.getElementById("msg").innerText =
+      "Account Created Successfully ✅";
+
+      setTimeout(()=>{
+        window.location.href="index.html";
+      },1500);
+
+    }else{
+
+      document.getElementById("msg").innerText =
+      data.message || "Signup Failed ❌";
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+    document.getElementById("msg").innerText =
+    "Server Error ❌";
   }
 }
+
 </script>
 
 </body>

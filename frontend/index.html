@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
   <title>Task Manager - Login</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
+
   <style>
+
     *{
       box-sizing:border-box;
-      font-family:'Segoe UI',sans-serif
+      font-family:'Segoe UI',sans-serif;
     }
 
     body{
@@ -30,18 +34,20 @@
     }
 
     @keyframes fade{
+
       from{
         opacity:0;
-        transform:translateY(20px)
+        transform:translateY(20px);
       }
+
       to{
         opacity:1;
-        transform:translateY(0)
+        transform:translateY(0);
       }
     }
 
     h2{
-      margin-bottom:18px
+      margin-bottom:18px;
     }
 
     input{
@@ -56,7 +62,7 @@
     input:focus{
       border-color:#4facfe;
       outline:none;
-      box-shadow:0 0 5px rgba(79,172,254,.5)
+      box-shadow:0 0 5px rgba(79,172,254,.5);
     }
 
     button{
@@ -73,12 +79,13 @@
     }
 
     button:hover{
-      background:#00c6ff
+      background:#00c6ff;
     }
 
     #msg{
       margin-top:10px;
-      color:red
+      color:red;
+      font-weight:bold;
     }
 
     a{
@@ -86,7 +93,9 @@
       color:#4facfe;
       font-weight:bold;
     }
+
   </style>
+
 </head>
 
 <body>
@@ -99,7 +108,9 @@
 
   <input id="password" type="password" placeholder="Password">
 
-  <button onclick="login()">Login</button>
+  <button type="button" onclick="login()">
+    Login
+  </button>
 
   <p id="msg"></p>
 
@@ -114,24 +125,51 @@
 
 async function login(){
 
-  const email=document.getElementById("email").value;
-  const password=document.getElementById("password").value;
+  try{
 
-  const res=await fetch("/api/auth/login",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({email,password})
-  });
+    const email =
+    document.getElementById("email").value;
 
-  const data=await res.json();
+    const password =
+    document.getElementById("password").value;
 
-  if(data.token){
-    localStorage.setItem("token",data.token);
-    window.location.href="dashboard.html";
-  }else{
-    document.getElementById("msg").innerText="Invalid credentials ❌";
+    const res = await fetch("/api/auth/login",{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        email,
+        password
+      })
+
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    if(data.token){
+
+      localStorage.setItem("token",data.token);
+
+      window.location.href="dashboard.html";
+
+    }else{
+
+      document.getElementById("msg").innerText =
+      data.message || "Invalid credentials ❌";
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+    document.getElementById("msg").innerText =
+    "Server Error ❌";
   }
 }
 
