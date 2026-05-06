@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+  <style>
+    *{
+      box-sizing:border-box;
+      font-family:'Segoe UI';
+    }
+
+    body{
+      margin:0;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+    }
+
+    .card{
+      width:320px;
+      background:white;
+      padding:30px;
+      border-radius:15px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border:1px solid #ddd;
+      border-radius:8px;
+    }
+
+    button{
+      width:100%;
+      padding:12px;
+      background:#667eea;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover{
+      background:#5a67d8;
+    }
+
+    #msg{
+      margin-top:10px;
+      color:green;
+    }
+
+    a{
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Create Account</h2>
+
+  <input id="name" placeholder="Name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="signup()">Register</button>
+
+  <p id="msg"></p>
+
+  <p>Already have an account?
+    <a href="index.html">Login</a>
+  </p>
+</div>
+
+<script>
+async function signup(){
+
+  const name=document.getElementById("name").value;
+  const email=document.getElementById("email").value;
+  const password=document.getElementById("password").value;
+
+  const res=await fetch("/api/auth/signup",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      name,
+      email,
+      password,
+      role:"admin"
+    })
+  });
+
+  const data=await res.json();
+
+  if(data){
+    document.getElementById("msg").innerText="Account Created Successfully";
+
+    setTimeout(()=>{
+      window.location.href="index.html";
+    },1500);
+  }
+}
+</script>
+
+</body>
+</html>
